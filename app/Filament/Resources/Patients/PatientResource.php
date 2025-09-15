@@ -5,9 +5,7 @@ namespace App\Filament\Resources\Patients;
 use App\Filament\Resources\Patients\Pages\CreatePatient;
 use App\Filament\Resources\Patients\Pages\EditPatient;
 use App\Filament\Resources\Patients\Pages\ListPatients;
-use App\Filament\Resources\Patients\Pages\ViewPatient;
 use App\Filament\Resources\Patients\Schemas\PatientForm;
-use App\Filament\Resources\Patients\Schemas\PatientInfolist;
 use App\Filament\Resources\Patients\Tables\PatientsTable;
 use App\Models\Patient;
 use BackedEnum;
@@ -40,11 +38,6 @@ class PatientResource extends Resource
         return PatientsTable::configure($table);
     }
 
-    public static function infolist(Schema $infolist): Schema
-    {
-        return PatientInfolist::configure($infolist);
-    }
-
     public static function getRelations(): array
     {
         return [
@@ -57,7 +50,6 @@ class PatientResource extends Resource
         return [
             'index' => ListPatients::route('/'),
             'create' => CreatePatient::route('/create'),
-            'view' => ViewPatient::route('/{record}'),
             'edit' => EditPatient::route('/{record}/edit'),
         ];
     }

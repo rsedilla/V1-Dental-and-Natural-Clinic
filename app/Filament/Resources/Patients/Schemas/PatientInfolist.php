@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Patients\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -13,107 +12,128 @@ class PatientInfolist
     {
         return $infolist
             ->schema([
-                Section::make('Personal Information')
+                // Patient Header Information
+                TextEntry::make('patient_name')
+                    ->label('Patient Name')
+                    ->getStateUsing(fn ($record) => trim("{$record->first_name} {$record->middle_name} {$record->last_name}"))
+                    ->weight('bold')
+                    ->size('lg')
                     ->icon('heroicon-o-user')
-                    ->schema([
-                        Grid::make(3)
-                            ->schema([
-                                TextEntry::make('first_name')
-                                    ->label('First Name'),
-                                
-                                TextEntry::make('middle_name')
-                                    ->label('Middle Name')
-                                    ->placeholder('Not provided'),
-                                
-                                TextEntry::make('last_name')
-                                    ->label('Last Name'),
-                            ]),
-                            
-                        Grid::make(2)
-                            ->schema([
-                                TextEntry::make('email')
-                                    ->label('Email Address')
-                                    ->icon('heroicon-o-envelope')
-                                    ->copyable(),
-                                
-                                TextEntry::make('phone_number')
-                                    ->label('Phone Number')
-                                    ->icon('heroicon-o-phone')
-                                    ->copyable(),
-                            ]),
-                            
-                        Grid::make(3)
-                            ->schema([
-                                TextEntry::make('birthday')
-                                    ->label('Date of Birth')
-                                    ->icon('heroicon-o-calendar')
-                                    ->date('F j, Y'),
-                                
-                                TextEntry::make('gender')
-                                    ->label('Gender')
-                                    ->badge()
-                                    ->color(fn (string $state): string => match ($state) {
-                                        'male' => 'blue',
-                                        'female' => 'pink',
-                                        default => 'gray',
-                                    }),
-                                
-                                TextEntry::make('age')
-                                    ->label('Current Age')
-                                    ->icon('heroicon-o-clock')
-                                    ->getStateUsing(fn ($record) => $record->birthday ? $record->birthday->age . ' years old' : 'Unknown'),
-                            ]),
-                    ]),
-                    
+                    ->color('primary'),
+
+                TextEntry::make('patient_age')
+                    ->label('Age')
+                    ->getStateUsing(fn ($record) => $record->birthday ? $record->birthday->age . ' years old' : 'Unknown')
+                    ->icon('heroicon-o-calendar')
+                    ->badge()
+                    ->color('info'),
+
+                TextEntry::make('gender')
+                    ->label('Gender')
+                    ->getStateUsing(fn ($record) => ucfirst($record->gender ?? 'Not specified'))
+                    ->badge()
+                    ->color(fn ($record): string => match (strtolower($record->gender ?? '')) {
+                        'male' => 'blue',
+                        'female' => 'pink',
+                        default => 'gray',
+                    }),
+
+                // Contact Information Section
                 Section::make('Contact Information')
+                    ->icon('heroicon-o-phone')
+                    ->schema([
+                        TextEntry::make('email')
+                            ->label('Email Address')
+                            ->getStateUsing(fn ($record) => $record->email ?: 'No email provided')
+                            ->icon('heroicon-o-envelope')
+                            ->color('primary')
+                            ->copyable()
+                            ->copyMessage('Email copied!')
+                            ->copyMessageDuration(1500),
+
+                        TextEntry::make('phone_number')
+                            ->label('Phone Number')
+                            ->getStateUsing(fn ($record) => $record->phone_number ?: 'No phone provided')
+                            ->icon('heroicon-o-device-phone-mobile')
+                            ->color('success')
+                            ->copyable()
+                            ->copyMessage('Phone copied!')
+                            ->copyMessageDuration(1500),
+
+                        TextEntry::make('birthday')
+                            ->label('Date of Birth')
+                            ->getStateUsing(fn ($record) => $record->birthday ? $record->birthday->format('F j, Y') : 'Not provided')
+                            ->icon('heroicon-o-cake')
+                            ->color('warning'),
+                    ]),
+
+                // Address Information Section
+                Section::make('Address Information')
                     ->icon('heroicon-o-map-pin')
                     ->schema([
                         TextEntry::make('present_address')
                             ->label('Present Address')
+                            ->getStateUsing(fn ($record) => $record->present_address ?: 'No address provided')
                             ->icon('heroicon-o-home')
                             ->columnSpanFull(),
-                            
-                        Grid::make(2)
-                            ->schema([
-                                TextEntry::make('emergency_contact_name')
-                                    ->label('Emergency Contact Name')
-                                    ->icon('heroicon-o-user-plus')
-                                    ->placeholder('Not provided'),
-                                
-                                TextEntry::make('emergency_contact_phone')
-                                    ->label('Emergency Contact Phone')
-                                    ->icon('heroicon-o-phone')
-                                    ->copyable()
-                                    ->placeholder('Not provided'),
-                            ]),
                     ]),
-                    
+
+                // Emergency Contact Section
+                Section::make('Emergency Contact')
+                    ->icon('heroicon-o-exclamation-triangle')
+                    ->schema([
+                        TextEntry::make('emergency_contact_name')
+                            ->label('Contact Name')
+                            ->getStateUsing(fn ($record) => $record->emergency_contact_name ?: 'No emergency contact')
+                            ->icon('heroicon-o-user-plus')
+                            ->color('danger'),
+
+                        TextEntry::make('emergency_contact_phone')
+                            ->label('Contact Phone')
+                            ->getStateUsing(fn ($record) => $record->emergency_contact_phone ?: 'No phone provided')
+                            ->icon('heroicon-o-phone')
+                            ->color('danger')
+                            ->copyable()
+                            ->copyMessage('Emergency contact copied!')
+                            ->copyMessageDuration(1500),
+                    ]),
+
+                // Medical Information Section
                 Section::make('Medical Information')
                     ->icon('heroicon-o-heart')
                     ->schema([
                         TextEntry::make('medical_history')
                             ->label('Medical History')
-                            ->placeholder('No medical history recorded')
-                            ->columnSpanFull(),
-                    ]),
-                    
+                            ->getStateUsing(fn ($record) => $record->medical_history ?: 'No medical history recorded')
+                            ->columnSpanFull()
+                            ->placeholder('No medical history available'),
+                    ])
+                    ->collapsible(),
+
+                // Registration Statistics Section
                 Section::make('Registration Details')
                     ->icon('heroicon-o-document-text')
                     ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                TextEntry::make('created_at')
-                                    ->label('Registration Date')
-                                    ->icon('heroicon-o-calendar-days')
-                                    ->dateTime('F j, Y \a\t g:i A'),
-                                
-                                TextEntry::make('updated_at')
-                                    ->label('Last Updated')
-                                    ->icon('heroicon-o-pencil-square')
-                                    ->dateTime('F j, Y \a\t g:i A'),
-                            ]),
+                        TextEntry::make('registration_date')
+                            ->label('Registration Date')
+                            ->getStateUsing(fn ($record) => $record->created_at->format('F j, Y \a\t g:i A'))
+                            ->icon('heroicon-o-calendar-days')
+                            ->color('success'),
+
+                        TextEntry::make('last_updated')
+                            ->label('Last Updated')
+                            ->getStateUsing(fn ($record) => $record->updated_at->format('F j, Y \a\t g:i A'))
+                            ->icon('heroicon-o-pencil-square')
+                            ->color('warning'),
+
+                        TextEntry::make('days_registered')
+                            ->label('Days Since Registration')
+                            ->getStateUsing(fn ($record) => $record->created_at->diffInDays(now()) . ' days ago')
+                            ->badge()
+                            ->color('info'),
                     ])
-                    ->collapsible(),
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 }
