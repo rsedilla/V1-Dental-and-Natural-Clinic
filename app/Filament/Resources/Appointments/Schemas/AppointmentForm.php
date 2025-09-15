@@ -18,40 +18,59 @@ class AppointmentForm
             ->components([
                 Select::make('patient_id')
                     ->label('Patient')
-                    ->relationship('patient', 'first_name', function ($query) {
-                        return $query->selectRaw("CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name) as full_name, id")
-                            ->orderBy('first_name');
-                    })
-                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->first_name . ' ' . ($record->middle_name ? $record->middle_name . ' ' : '') . $record->last_name)
-                    ->searchable(['first_name', 'last_name'])
+                    ->relationship(
+                        name: 'patient',
+                        titleAttribute: 'first_name',
+                        modifyQueryUsing: fn ($query) => $query->orderBy('first_name')->orderBy('last_name')
+                    )
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
+                    ->searchable(['first_name', 'last_name', 'middle_name', 'email', 'phone_number'])
+                    ->preload(false)
                     ->required()
-                    ->preload(),
+                    ->placeholder('Search and select a patient...')
+                    ->helperText('Type patient name, email, or phone to search')
+                    ->native(false),
                     
                 Select::make('dentist_id')
                     ->label('Dentist')
-                    ->relationship('dentist', 'first_name', function ($query) {
-                        return $query->selectRaw("CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name) as full_name, id")
-                            ->orderBy('first_name');
-                    })
-                    ->getOptionLabelFromRecordUsing(fn ($record) => 'Dr. ' . $record->first_name . ' ' . ($record->middle_name ? $record->middle_name . ' ' : '') . $record->last_name)
-                    ->searchable(['first_name', 'last_name'])
+                    ->relationship(
+                        name: 'dentist',
+                        titleAttribute: 'first_name',
+                        modifyQueryUsing: fn ($query) => $query->orderBy('first_name')->orderBy('last_name')
+                    )
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "Dr. {$record->full_name}")
+                    ->preload()
                     ->required()
-                    ->preload(),
+                    ->placeholder('Select a dentist...')
+                    ->native(false),
                     
                 Select::make('appointment_type_id')
                     ->label('Appointment Type')
-                    ->relationship('appointmentType', 'name')
+                    ->relationship(
+                        name: 'appointmentType',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn ($query) => $query->orderBy('name')
+                    )
+                    ->preload()
                     ->required()
-                    ->preload(),
+                    ->placeholder('Select appointment type...')
+                    ->native(false),
                     
                 Select::make('status_id')
                     ->label('Status')
-                    ->relationship('status', 'name')
-                    ->required()
+                    ->relationship(
+                        name: 'status',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn ($query) => $query->orderBy('name')
+                    )
+                    ->getOptionLabelFromRecordUsing(fn ($record) => ucfirst($record->name))
                     ->preload()
+                    ->required()
                     ->default(function () {
-                        return \App\Models\AppointmentStatus::where('name', 'Scheduled')->first()?->id;
-                    }),
+                        return \App\Models\AppointmentStatus::where('name', 'scheduled')->first()?->id;
+                    })
+                    ->placeholder('Select status...')
+                    ->native(false),
                     
                 DateTimePicker::make('appointment_date')
                     ->label('Appointment Date & Time')

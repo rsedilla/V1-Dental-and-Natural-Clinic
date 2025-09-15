@@ -23,7 +23,7 @@ class AppointmentStatusSeeder extends Seeder
         ];
 
         foreach ($statuses as $status) {
-            AppointmentStatus::create($status);
+            AppointmentStatus::firstOrCreate(['name' => $status['name']], $status);
         }
     }
 }

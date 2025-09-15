@@ -34,4 +34,18 @@ class Patient extends Model
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
     }
+
+    /**
+     * Scope for searching patients by name or email
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($query) use ($search) {
+            $query->whereRaw("CONCAT(first_name, ' ', COALESCE(middle_name, ''), ' ', last_name) LIKE ?", ["%{$search}%"])
+                  ->orWhere('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone_number', 'like', "%{$search}%");
+        });
+    }
 }

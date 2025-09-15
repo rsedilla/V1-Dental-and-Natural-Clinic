@@ -32,7 +32,7 @@ class AppointmentTypeSeeder extends Seeder
         ];
 
         foreach ($appointmentTypes as $type) {
-            AppointmentType::create($type);
+            AppointmentType::firstOrCreate(['name' => $type['name']], $type);
         }
     }
 }
