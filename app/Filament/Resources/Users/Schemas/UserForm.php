@@ -19,15 +19,13 @@ class UserForm
                     ->label('Email address')
                     ->email()
                     ->required(),
-                TextInput::make('role')
-                    ->required()
-                    ->default('assistant'),
-                DateTimePicker::make('email_verified_at'),
                 TextInput::make('password')
                     ->password()
                     ->required(),
                 Select::make('role_id')
-                    ->relationship('role', 'name'),
+                    ->label('Role')
+                    ->relationship('role', 'name')
+                    ->required(),
             ]);
     }
 }
