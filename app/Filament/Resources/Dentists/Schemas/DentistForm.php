@@ -38,7 +38,9 @@ class DentistForm
                     ->label('Phone Number')
                     ->tel()
                     ->required()
-                    ->maxLength(20),
+                    ->maxLength(20)
+                    ->mask('9999-999-9999')
+                    ->placeholder('0917-871-6509'),
                     
                 TextInput::make('email')
                     ->label('Email Address')
@@ -56,8 +58,7 @@ class DentistForm
                     ->label('Gender')
                     ->options([
                         'male' => 'Male',
-                        'female' => 'Female',
-                        'other' => 'Other'
+                        'female' => 'Female'
                     ])
                     ->required(),
                     
