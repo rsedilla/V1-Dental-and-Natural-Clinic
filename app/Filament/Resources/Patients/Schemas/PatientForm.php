@@ -40,7 +40,9 @@ class PatientForm
                     ->label('Phone Number')
                     ->tel()
                     ->required()
-                    ->maxLength(20),
+                    ->maxLength(20)
+                    ->mask('9999-999-9999')
+                    ->placeholder('0917-871-6509'),
                     
                 DatePicker::make('birthday')
                     ->label('Date of Birth')
@@ -76,7 +78,9 @@ class PatientForm
                 TextInput::make('emergency_contact_phone')
                     ->label('Emergency Contact Phone')
                     ->tel()
-                    ->maxLength(20),
+                    ->maxLength(20)
+                    ->mask('9999-999-9999')
+                    ->placeholder('0917-871-6509'),
             ]);
     }
 }

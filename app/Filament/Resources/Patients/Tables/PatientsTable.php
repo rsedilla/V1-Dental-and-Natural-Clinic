@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Patients\Tables;
 
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -37,11 +39,10 @@ class PatientsTable
                     ->color(fn (string $state): string => match ($state) {
                         'male' => 'info',
                         'female' => 'success',
-                        'other' => 'warning',
                     }),
                     
                 TextColumn::make('age')
-                    ->getStateUsing(fn ($record) => $record->birthday ? now()->diffInYears($record->birthday) . ' years' : 'N/A')
+                    ->getStateUsing(fn ($record) => $record->birthday ? $record->birthday->age . ' years' : 'N/A')
                     ->sortable(),
                     
                 TextColumn::make('created_at')
@@ -49,6 +50,10 @@ class PatientsTable
                     ->dateTime('M d, Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
     }
