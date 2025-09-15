@@ -1,11 +1,96 @@
 @import 'tailwindcss';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* Custom Login Page Styling for Dental Clinic */
+.fi-simple-layout {
+    background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 50%, #81d4fa 100%) !important;
+    min-height: 100vh;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+.fi-simple-main {
+    background: transparent !important;
+}
+
+.fi-simple-header-heading {
+    color: #0277bd !important;
+    font-weight: 700 !important;
+    font-size: 2.25rem !important;
+    text-align: center !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.fi-simple-header-subheading {
+    color: #0288d1 !important;
+    text-align: center !important;
+    font-size: 1.1rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.fi-section {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    padding: 2.5rem !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+}
+
+.fi-input {
+    border-radius: 12px !important;
+    border: 2px solid #e1f5fe !important;
+    padding: 0.875rem 1rem !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    transition: all 0.3s ease !important;
+}
+
+.fi-input:focus {
+    border-color: #0288d1 !important;
+    box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.15) !important;
+    background: rgba(255, 255, 255, 1) !important;
+}
+
+.fi-btn-primary {
+    background: linear-gradient(135deg, #0288d1 0%, #0277bd 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.875rem 2rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+.fi-btn-primary:hover {
+    background: linear-gradient(135deg, #0277bd 0%, #01579b 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 25px rgba(2, 136, 209, 0.3) !important;
+}
+
+.fi-field-wrapper-label {
+    color: #01579b !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Medical-themed accent */
+.fi-simple-header::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #00bcd4 0%, #0097a7 100%);
+    border-radius: 2px;
+    margin: 1rem auto 2rem auto;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+    .fi-section {
+        margin: 1rem !important;
+        padding: 2rem !important;
+        border-radius: 16px !important;
+    }
+    
+    .fi-simple-header-heading {
+        font-size: 2rem !important;
+    }
 }

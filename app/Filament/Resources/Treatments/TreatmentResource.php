@@ -18,7 +18,15 @@ class TreatmentResource extends Resource
 {
     protected static ?string $model = Treatment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHeart;
+    
+    protected static ?string $navigationLabel = 'Treatments';
+    
+    protected static ?string $modelLabel = 'Treatment';
+    
+    protected static ?string $pluralModelLabel = 'Treatments';
+    
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {

@@ -18,9 +18,15 @@ class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    protected static ?string $recordTitleAttribute = 'no';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
+    
+    protected static ?string $navigationLabel = 'Appointments';
+    
+    protected static ?string $modelLabel = 'Appointment';
+    
+    protected static ?string $pluralModelLabel = 'Appointments';
+    
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

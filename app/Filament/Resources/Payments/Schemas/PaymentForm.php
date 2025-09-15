@@ -2,6 +2,10 @@
 
 namespace App\Filament\Resources\Payments\Schemas;
 
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 
 class PaymentForm
@@ -10,7 +14,21 @@ class PaymentForm
     {
         return $schema
             ->components([
-                //
+                Select::make('appointment_id')
+                    ->relationship('appointment', 'id')
+                    ->required(),
+                TextInput::make('amount')
+                    ->required()
+                    ->numeric(),
+                DatePicker::make('payment_date')
+                    ->required(),
+                TextInput::make('payment_method')
+                    ->required(),
+                Select::make('status_id')
+                    ->relationship('status', 'name')
+                    ->required(),
+                Textarea::make('notes')
+                    ->columnSpanFull(),
             ]);
     }
 }
