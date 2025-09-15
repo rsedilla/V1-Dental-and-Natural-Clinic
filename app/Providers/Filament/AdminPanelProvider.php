@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\ClinicStatsOverview;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,8 +30,6 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('Dental & Natural Clinic')
-            ->brandLogo(asset('images/logo.svg'))
-            ->brandLogoHeight('2.5rem')
             ->favicon(asset('favicon.ico'))
             ->colors([
                 'primary' => Color::Blue,
@@ -42,9 +41,9 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                \App\Filament\Widgets\ClinicStatsOverview::class,
+                AccountWidget::class,
+                ClinicStatsOverview::class,
             ])
             ->middleware([
                 EncryptCookies::class,
