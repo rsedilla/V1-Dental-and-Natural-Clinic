@@ -12,6 +12,17 @@ use App\Models\Dentist;
 
 class ClinicStatsOverview extends BaseWidget
 {
+    protected static ?int $sort = 1;
+    protected int | string | array $columnSpan = 'full';
+    
+    // Disable caching to ensure real-time data
+    public function getCacheKey(): string
+    {
+        return 'clinic-stats-' . now()->timestamp;
+    }
+    
+    protected ?string $pollingInterval = '10s';
+    
     protected function getStats(): array
     {
         try {
@@ -23,7 +34,7 @@ class ClinicStatsOverview extends BaseWidget
                 ->sum('amount') ?? 0;
             
             // Fix upcoming appointments - should include today and future dates
-            $upcomingAppointments = Appointment::where('date', '>=', today())->count();
+            $upcomingAppointments = Appointment::whereDate('date', '>=', today()->toDateString())->count();
             
             $totalAppointmentsThisMonth = Appointment::whereMonth('date', now()->month)
                 ->whereYear('date', now()->year)
