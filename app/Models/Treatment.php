@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Treatment extends Model
 {
@@ -48,6 +49,11 @@ class Treatment extends Model
     public function performedBy(): BelongsTo
     {
         return $this->belongsTo(Dentist::class, 'performed_by');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     public function getDentistAmountAttribute(): float

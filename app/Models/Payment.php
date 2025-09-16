@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Payment extends Model
 {
     protected $fillable = [
-        'appointment_id',
+        'treatment_id',
         'amount',
         'payment_date',
         'payment_method',
@@ -21,9 +21,9 @@ class Payment extends Model
         'amount' => 'decimal:2',
     ];
 
-    public function appointment(): BelongsTo
+    public function treatment(): BelongsTo
     {
-        return $this->belongsTo(Appointment::class);
+        return $this->belongsTo(Treatment::class);
     }
 
     public function status(): BelongsTo

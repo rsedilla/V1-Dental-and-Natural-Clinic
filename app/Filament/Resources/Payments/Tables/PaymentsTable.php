@@ -14,11 +14,20 @@ class PaymentsTable
                 TextColumn::make('patient_name')
                     ->label('Patient')
                     ->getStateUsing(function ($record) {
-                        $patient = $record->appointment ? $record->appointment->patient : null;
+                        $patient = $record->treatment && $record->treatment->appointment ? $record->treatment->appointment->patient : null;
                         if (!$patient) return 'N/A';
                         return $patient->first_name . ' ' . $patient->last_name;
                     })
-                    ->searchable(['appointment.patient.first_name', 'appointment.patient.last_name'])
+                    ->searchable(['treatment.appointment.patient.first_name', 'treatment.appointment.patient.last_name'])
+                    ->sortable(),
+                    
+                TextColumn::make('treatment_info')
+                    ->label('Treatment')
+                    ->getStateUsing(function ($record) {
+                        if (!$record->treatment) return 'N/A';
+                        return $record->treatment->treatmentType->name ?? 'Unknown Treatment';
+                    })
+                    ->searchable(['treatment.treatmentType.name'])
                     ->sortable(),
                     
                 TextColumn::make('amount')

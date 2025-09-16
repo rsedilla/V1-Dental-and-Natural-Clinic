@@ -14,8 +14,11 @@ class PaymentForm
     {
         return $schema
             ->components([
-                Select::make('appointment_id')
-                    ->relationship('appointment', 'id')
+                Select::make('treatment_id')
+                    ->relationship('treatment', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "Treatment #{$record->id} - {$record->treatmentType->name} for {$record->appointment->patient->first_name} {$record->appointment->patient->last_name}")
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 TextInput::make('amount')
                     ->required()
