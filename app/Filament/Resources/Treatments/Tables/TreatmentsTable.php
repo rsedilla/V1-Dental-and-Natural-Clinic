@@ -12,25 +12,25 @@ class TreatmentsTable
         return $table
             ->columns([
                 // 1. Patient Name
-                TextColumn::make('patient_name')
+                TextColumn::make('appointment.patient.first_name')
                     ->label('Patient Name')
-                    ->getStateUsing(function ($record) {
+                    ->formatStateUsing(function ($record) {
                         $patient = $record->appointment ? $record->appointment->patient : null;
                         if (!$patient) return 'N/A';
                         return $patient->first_name . ' ' . ($patient->middle_name ? $patient->middle_name . ' ' : '') . $patient->last_name;
                     })
-                    ->searchable(['appointment.patient.first_name', 'appointment.patient.last_name'])
+                    ->searchable()
                     ->sortable(),
                     
                 // 2. Dentist or performed by
-                TextColumn::make('dentist_name')
+                TextColumn::make('performedBy.first_name')
                     ->label('Performed By')
-                    ->getStateUsing(function ($record) {
+                    ->formatStateUsing(function ($record) {
                         $dentist = $record->performedBy ?: ($record->appointment ? $record->appointment->dentist : null);
                         if (!$dentist) return 'N/A';
                         return 'Dr. ' . $dentist->first_name . ' ' . ($dentist->middle_name ? $dentist->middle_name . ' ' : '') . $dentist->last_name;
                     })
-                    ->searchable(['performedBy.first_name', 'performedBy.last_name'])
+                    ->searchable()
                     ->sortable(),
                     
                 // 3. Type - from treatment type table
@@ -100,6 +100,10 @@ class TreatmentsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('treatment_date', 'desc');
+            ->defaultSort('treatment_date', 'desc')
+            ->searchOnBlur()
+            ->filters([
+                // Add filters here if needed
+            ]);
     }
 }
