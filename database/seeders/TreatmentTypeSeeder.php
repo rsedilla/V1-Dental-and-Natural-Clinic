@@ -13,20 +13,30 @@ class TreatmentTypeSeeder extends Seeder
      */
     public function run(): void
     {
+        // Clear existing treatment types safely
+        TreatmentType::query()->delete();
+        
         $treatmentTypes = [
-            ['name' => 'Filling', 'description' => 'Cavity filling with composite or amalgam'],
-            ['name' => 'Tooth Extraction', 'description' => 'Simple or surgical tooth removal'],
-            ['name' => 'Dental Cleaning', 'description' => 'Professional teeth cleaning and polishing'],
-            ['name' => 'Root Canal Treatment', 'description' => 'Endodontic therapy for infected roots'],
-            ['name' => 'Crown Placement', 'description' => 'Dental crown installation'],
-            ['name' => 'Bridge Placement', 'description' => 'Dental bridge installation'],
-            ['name' => 'Denture Fitting', 'description' => 'Complete or partial denture fitting'],
-            ['name' => 'Orthodontic Adjustment', 'description' => 'Braces tightening and adjustment'],
-            ['name' => 'X-ray/Imaging', 'description' => 'Dental radiography and diagnostic imaging'],
-            ['name' => 'Periodontal Treatment', 'description' => 'Deep cleaning and gum treatment'],
-            ['name' => 'Cosmetic Procedure', 'description' => 'Whitening, veneers, and aesthetic treatments'],
-            ['name' => 'Oral Surgery', 'description' => 'Surgical procedures in the oral cavity'],
-            ['name' => 'Pediatric Dentistry', 'description' => 'Specialized treatments for children'],
+            ['name' => 'Oral Prophylaxis (Cleaning)', 'description' => null],
+            ['name' => 'Tooth Extraction', 'description' => null],
+            ['name' => 'Dental Filling (Restoration)', 'description' => null],
+            ['name' => 'Root Canal Treatment', 'description' => null],
+            ['name' => 'Dental Crown', 'description' => null],
+            ['name' => 'Dental Bridge', 'description' => null],
+            ['name' => 'Denture (Full/Partial)', 'description' => null],
+            ['name' => 'Orthodontic Braces', 'description' => null],
+            ['name' => 'Scaling and Polishing', 'description' => null],
+            ['name' => 'Tooth Whitening (Bleaching)', 'description' => null],
+            ['name' => 'Sealant Application', 'description' => null],
+            ['name' => 'Fluoride Treatment', 'description' => null],
+            ['name' => 'X-ray/Imaging', 'description' => null],
+            ['name' => 'Consultation', 'description' => null],
+            ['name' => 'Periodontal Treatment', 'description' => null],
+            ['name' => 'Oral Surgery', 'description' => null],
+            ['name' => 'Veneers', 'description' => null],
+            ['name' => 'Inlay/Onlay', 'description' => null],
+            ['name' => 'Implant Placement', 'description' => null],
+            ['name' => 'Apicoectomy', 'description' => null],
         ];
 
         foreach ($treatmentTypes as $type) {
