@@ -21,9 +21,10 @@ class TreatmentForm
                     ->getOptionLabelFromRecordUsing(function ($record) {
                         $patient = $record->patient;
                         $dentist = $record->dentist;
+                        $dateStr = $record->date ? $record->date->format('M d, Y') : 'No Date';
                         return $patient->first_name . ' ' . $patient->last_name . 
                                ' - Dr. ' . $dentist->first_name . ' ' . $dentist->last_name . 
-                               ' (' . $record->appointment_date->format('M d, Y') . ')';
+                               ' (' . $dateStr . ')';
                     })
                     ->searchable()
                     ->preload()
