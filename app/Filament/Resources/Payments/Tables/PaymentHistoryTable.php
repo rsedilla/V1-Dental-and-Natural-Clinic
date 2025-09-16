@@ -30,12 +30,12 @@ class PaymentHistoryTable
                         $record->treatment->appointment->patient->first_name . ' ' . 
                         $record->treatment->appointment->patient->last_name
                     )
-                    ->searchable(['patients.first_name', 'patients.last_name'])
+                    ->searchable(false)
                     ->sortable(['patients.first_name']),
                     
                 TextColumn::make('treatment.treatmentType.name')
                     ->label('Treatment')
-                    ->searchable()
+                    ->searchable(false)
                     ->sortable(),
                     
                 TextColumn::make('treatment.cost')
@@ -89,6 +89,31 @@ class PaymentHistoryTable
                     }),
             ])
             ->filters([
+                Filter::make('search')
+                    ->form([
+                        TextInput::make('search')
+                            ->label('Search')
+                            ->placeholder('Search by patient name or treatment type...')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!$data['search']) {
+                            return $query;
+                        }
+                        
+                        $search = $data['search'];
+                        
+                        return $query->where(function (Builder $query) use ($search) {
+                            $query->whereHas('treatment.appointment.patient', function (Builder $q) use ($search) {
+                                $q->where('first_name', 'like', "%{$search}%")
+                                  ->orWhere('last_name', 'like', "%{$search}%")
+                                  ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", ["%{$search}%"]);
+                            })
+                            ->orWhereHas('treatment.treatmentType', function (Builder $q) use ($search) {
+                                $q->where('name', 'like', "%{$search}%");
+                            });
+                        });
+                    }),
+                    
                 SelectFilter::make('payment_status')
                     ->label('Payment Status')
                     ->options([
