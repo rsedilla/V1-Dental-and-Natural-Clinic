@@ -112,6 +112,15 @@ class PaymentForm
                         return "#{$treatment->id} - {$treatmentType} for {$patientName} ({$date})";
                     })
                     ->live()
+                    ->afterStateUpdated(function ($state, $set) {
+                        // Reset amount when treatment changes to a fully paid treatment
+                        if ($state) {
+                            $treatment = Treatment::find($state);
+                            if ($treatment && $treatment->remaining_balance <= 0) {
+                                $set('amount', null);
+                            }
+                        }
+                    })
                     ->required()
                     ->helperText('Search by typing patient name, treatment type, or treatment ID'),
                 TextInput::make('amount')
@@ -119,6 +128,26 @@ class PaymentForm
                     ->numeric()
                     ->prefix('₱')
                     ->live(debounce: 500)
+                    ->disabled(function ($get) {
+                        $treatmentId = $get('treatment_id');
+                        if (!$treatmentId) return false;
+                        
+                        $treatment = Treatment::find($treatmentId);
+                        return $treatment && $treatment->remaining_balance <= 0;
+                    })
+                    ->rules([
+                        function ($get) {
+                            return function (string $attribute, $value, $fail) use ($get) {
+                                $treatmentId = $get('treatment_id');
+                                if ($treatmentId) {
+                                    $treatment = Treatment::find($treatmentId);
+                                    if ($treatment && $treatment->remaining_balance <= 0) {
+                                        $fail('Cannot add payment to a fully paid treatment.');
+                                    }
+                                }
+                            };
+                        },
+                    ])
                     ->default(function () {
                         // Pre-fill remaining balance if specified in URL
                         return request()->get('amount');
@@ -129,6 +158,11 @@ class PaymentForm
                         
                         $treatment = Treatment::find($treatmentId);
                         if (!$treatment) return 'Treatment not found';
+                        
+                        // Check if treatment is fully paid
+                        if ($treatment->remaining_balance <= 0) {
+                            return '✅ Treatment is fully paid. No further payments allowed.';
+                        }
                         
                         $cost = $treatment->cost;
                         $totalPaid = $treatment->total_paid;

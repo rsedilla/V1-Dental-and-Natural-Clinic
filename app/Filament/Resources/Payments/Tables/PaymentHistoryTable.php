@@ -43,22 +43,60 @@ class PaymentHistoryTable
                     ->money('PHP')
                     ->sortable(),
                     
-                TextColumn::make('treatment.total_paid')
+                TextColumn::make('cumulative_paid')
                     ->label('Total Paid')
                     ->money('PHP')
-                    ->getStateUsing(fn ($record) => $record->treatment->total_paid)
+                    ->getStateUsing(function ($record) {
+                        // Calculate cumulative payment up to this payment date
+                        return $record->treatment->payments()
+                            ->where('payment_date', '<=', $record->payment_date)
+                            ->where(function ($query) use ($record) {
+                                $query->where('payment_date', '<', $record->payment_date)
+                                      ->orWhere('id', '<=', $record->id);
+                            })
+                            ->sum('amount');
+                    })
                     ->color('success'),
                     
-                TextColumn::make('treatment.remaining_balance')
+                TextColumn::make('remaining_balance_at_time')
                     ->label('Remaining Balance')
                     ->money('PHP')
-                    ->getStateUsing(fn ($record) => $record->treatment->remaining_balance)
+                    ->getStateUsing(function ($record) {
+                        // Calculate remaining balance after this payment
+                        $cumulativePaid = $record->treatment->payments()
+                            ->where('payment_date', '<=', $record->payment_date)
+                            ->where(function ($query) use ($record) {
+                                $query->where('payment_date', '<', $record->payment_date)
+                                      ->orWhere('id', '<=', $record->id);
+                            })
+                            ->sum('amount');
+                        return $record->treatment->cost - $cumulativePaid;
+                    })
                     ->color(fn ($state) => $state > 0 ? 'danger' : 'success'),
                     
-                TextColumn::make('treatment.payment_status')
+                TextColumn::make('payment_status_at_time')
                     ->label('Payment Status')
                     ->badge()
-                    ->getStateUsing(fn ($record) => $record->treatment->payment_status)
+                    ->getStateUsing(function ($record) {
+                        // Calculate payment status at the time of this payment
+                        $cumulativePaid = $record->treatment->payments()
+                            ->where('payment_date', '<=', $record->payment_date)
+                            ->where(function ($query) use ($record) {
+                                $query->where('payment_date', '<', $record->payment_date)
+                                      ->orWhere('id', '<=', $record->id);
+                            })
+                            ->sum('amount');
+                        
+                        $cost = $record->treatment->cost;
+                        
+                        if ($cumulativePaid == 0) {
+                            return 'unpaid';
+                        } elseif ($cumulativePaid >= $cost) {
+                            return 'paid';
+                        } else {
+                            return 'partial';
+                        }
+                    })
                     ->color(fn (string $state): string => match ($state) {
                         'paid' => 'success',
                         'partial' => 'warning',
