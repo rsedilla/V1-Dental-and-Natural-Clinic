@@ -17,11 +17,14 @@ class Treatment extends Model
         'dentist_share',
         'clinic_share',
         'treatment_date',
+        'follow_up_date',
+        'follow_up_notes',
         'notes',
     ];
 
     protected $casts = [
         'treatment_date' => 'date',
+        'follow_up_date' => 'date',
         'cost' => 'decimal:2',
         'dentist_share' => 'decimal:2',
         'clinic_share' => 'decimal:2',

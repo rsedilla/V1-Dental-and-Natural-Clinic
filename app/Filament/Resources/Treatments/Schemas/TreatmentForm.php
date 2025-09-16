@@ -48,6 +48,12 @@ class TreatmentForm
                     ->default(now())
                     ->required(),
                     
+                DatePicker::make('follow_up_date')
+                    ->label('Follow-up Date')
+                    ->native(false)
+                    ->displayFormat('M d, Y')
+                    ->helperText('Optional: Schedule a follow-up appointment'),
+                    
                 TextInput::make('cost')
                     ->label('Cost (PHP)')
                     ->required()
@@ -72,9 +78,15 @@ class TreatmentForm
                     ->columnSpanFull(),
                     
                 Textarea::make('notes')
-                    ->label('Additional Notes')
+                    ->label('Treatment Notes')
                     ->rows(2)
                     ->placeholder('Any additional notes or observations...')
+                    ->columnSpanFull(),
+                    
+                Textarea::make('follow_up_notes')
+                    ->label('Follow-up Notes')
+                    ->rows(2)
+                    ->placeholder('Notes for the follow-up appointment...')
                     ->columnSpanFull(),
             ]);
     }

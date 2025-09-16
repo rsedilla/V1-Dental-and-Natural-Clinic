@@ -11,8 +11,9 @@ class TreatmentsTable
     {
         return $table
             ->columns([
+                // 1. Patient Name
                 TextColumn::make('patient_name')
-                    ->label('Patient')
+                    ->label('Patient Name')
                     ->getStateUsing(function ($record) {
                         $patient = $record->appointment ? $record->appointment->patient : null;
                         if (!$patient) return 'N/A';
@@ -21,22 +22,7 @@ class TreatmentsTable
                     ->searchable(['appointment.patient.first_name', 'appointment.patient.last_name'])
                     ->sortable(),
                     
-                TextColumn::make('treatment_name')
-                    ->label('Treatment Type')
-                    ->badge()
-                    ->color('info')
-                    ->searchable(),
-                    
-                TextColumn::make('tooth_number')
-                    ->label('Tooth #')
-                    ->placeholder('N/A')
-                    ->searchable(),
-                    
-                TextColumn::make('cost')
-                    ->label('Cost')
-                    ->money('PHP')
-                    ->sortable(),
-                    
+                // 2. Dentist or performed by
                 TextColumn::make('dentist_name')
                     ->label('Performed By')
                     ->getStateUsing(function ($record) {
@@ -47,25 +33,65 @@ class TreatmentsTable
                     ->searchable(['performedBy.first_name', 'performedBy.last_name'])
                     ->sortable(),
                     
+                // 3. Type - from treatment type table
+                TextColumn::make('treatmentType.name')
+                    ->label('Treatment Type')
+                    ->badge()
+                    ->color('info')
+                    ->searchable()
+                    ->sortable(),
+                    
+                // 4. Date
                 TextColumn::make('treatment_date')
-                    ->label('Date')
+                    ->label('Treatment Date')
                     ->date('M d, Y')
                     ->sortable(),
                     
+                // 5. Cost
+                TextColumn::make('cost')
+                    ->label('Cost')
+                    ->money('PHP')
+                    ->sortable(),
+                    
+                // 6. Follow up
+                TextColumn::make('follow_up_date')
+                    ->label('Follow Up')
+                    ->date('M d, Y')
+                    ->placeholder('No follow-up scheduled')
+                    ->badge()
+                    ->color(function ($state) {
+                        if (!$state) return 'gray';
+                        return $state->isPast() ? 'danger' : 'success';
+                    })
+                    ->sortable(),
+                    
+                // Additional columns (hidden by default)
+                TextColumn::make('tooth_number')
+                    ->label('Tooth #')
+                    ->placeholder('N/A')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
                 TextColumn::make('dentist_revenue')
                     ->label('Dentist Share')
-                    ->getStateUsing(fn ($record) => '₱' . number_format($record->cost * 0.4, 2))
+                    ->getStateUsing(fn ($record) => '₱' . number_format($record->cost * ($record->dentist_share ?? 0.4), 2))
                     ->color('success')
                     ->toggleable(isToggledHiddenByDefault: true),
                     
                 TextColumn::make('clinic_revenue')
                     ->label('Clinic Share')
-                    ->getStateUsing(fn ($record) => '₱' . number_format($record->cost * 0.6, 2))
+                    ->getStateUsing(fn ($record) => '₱' . number_format($record->cost * ($record->clinic_share ?? 0.6), 2))
                     ->color('warning')
                     ->toggleable(isToggledHiddenByDefault: true),
                     
                 TextColumn::make('description')
                     ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
+                TextColumn::make('follow_up_notes')
+                    ->label('Follow-up Notes')
+                    ->limit(50)
+                    ->placeholder('No notes')
                     ->toggleable(isToggledHiddenByDefault: true),
                     
                 TextColumn::make('created_at')
