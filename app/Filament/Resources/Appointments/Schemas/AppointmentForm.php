@@ -72,13 +72,20 @@ class AppointmentForm
                     ->placeholder('Select status...')
                     ->native(false),
                     
-                DateTimePicker::make('appointment_date')
-                    ->label('Appointment Date & Time')
+                DatePicker::make('date')
+                    ->label('Appointment Date')
                     ->required()
                     ->native(false)
-                    ->displayFormat('M d, Y - h:i A')
+                    ->displayFormat('M d, Y')
                     ->minDate(now())
-                    ->columnSpanFull(),
+                    ->columnSpan(1),
+                    
+                TimePicker::make('time')
+                    ->label('Appointment Time')
+                    ->required()
+                    ->native(false)
+                    ->displayFormat('h:i A')
+                    ->columnSpan(1),
                     
                 Textarea::make('notes')
                     ->label('Notes')

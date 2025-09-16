@@ -3,6 +3,11 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\ClinicStatsOverview;
+// use App\Filament\Widgets\UpcomingAppointmentsWidget;
+// use App\Filament\Widgets\PendingPaymentsWidget;
+// use App\Filament\Widgets\TotalAppointmentsThisMonthWidget;
+// use App\Filament\Widgets\PatientsTodayWidget;
+use App\Filament\Widgets\CancelledAppointmentsThisMonthWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -42,7 +47,10 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->widgets([
-                AccountWidget::class,
+                // UpcomingAppointmentsWidget::class,
+                // PendingPaymentsWidget::class,
+                // TotalAppointmentsThisMonthWidget::class,
+                // PatientsTodayWidget::class,
                 ClinicStatsOverview::class,
             ])
             ->middleware([

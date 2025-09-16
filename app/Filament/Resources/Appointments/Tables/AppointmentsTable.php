@@ -11,30 +11,46 @@ class AppointmentsTable
     {
         return $table
             ->columns([
+                TextColumn::make('date')
+                    ->label('Date')
+                    ->getStateUsing(fn ($record) => $record->date ? $record->date->format('M d, Y') : 'N/A')
+                    ->sortable()
+                    ->badge()
+                    ->color(function ($record) {
+                        if (!$record->date) return 'gray';
+                        $appointmentDate = $record->date->format('Y-m-d');
+                        $today = now()->format('Y-m-d');
+                        if ($appointmentDate === $today) {
+                            return 'warning'; // Today's appointments
+                        } elseif ($appointmentDate < $today) {
+                            return 'danger'; // Overdue appointments
+                        } else {
+                            return 'success'; // Future appointments
+                        }
+                    }),
+
+                TextColumn::make('time')
+                    ->label('Time')
+                    ->getStateUsing(fn ($record) => $record->time ? $record->time->format('h:i A') : 'N/A')
+                    ->sortable(),
+                    
                 TextColumn::make('patient_name')
                     ->label('Patient')
                     ->getStateUsing(fn ($record) => $record->patient ? $record->patient->first_name . ' ' . ($record->patient->middle_name ? $record->patient->middle_name . ' ' : '') . $record->patient->last_name : 'N/A')
-                    ->searchable(['patient.first_name', 'patient.last_name'])
                     ->sortable(),
                     
                 TextColumn::make('dentist_name')
                     ->label('Dentist')
                     ->getStateUsing(fn ($record) => $record->dentist ? 'Dr. ' . $record->dentist->first_name . ' ' . ($record->dentist->middle_name ? $record->dentist->middle_name . ' ' : '') . $record->dentist->last_name : 'N/A')
-                    ->searchable(['dentist.first_name', 'dentist.last_name'])
                     ->sortable(),
                     
-                TextColumn::make('appointment_type')
+                TextColumn::make('appointmentType.name')
                     ->label('Type')
                     ->badge()
                     ->color('info')
                     ->searchable(),
-                    
-                TextColumn::make('appointment_date')
-                    ->label('Date & Time')
-                    ->dateTime('M d, Y - h:i A')
-                    ->sortable(),
-                    
-                TextColumn::make('status')
+
+                TextColumn::make('status.name')
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -47,7 +63,6 @@ class AppointmentsTable
                         default => 'gray',
                     })
                     ->searchable(),
-                    
                 TextColumn::make('notes')
                     ->limit(50)
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -58,6 +73,6 @@ class AppointmentsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('appointment_date', 'desc');
+            ->defaultSort('date', 'asc');
     }
 }
