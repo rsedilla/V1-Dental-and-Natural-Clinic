@@ -42,6 +42,11 @@ class Treatment extends Model
         return $this->belongsTo(Dentist::class, 'performed_by');
     }
 
+    public function performedBy(): BelongsTo
+    {
+        return $this->belongsTo(Dentist::class, 'performed_by');
+    }
+
     public function getDentistAmountAttribute(): float
     {
         return $this->cost * $this->dentist_share;
