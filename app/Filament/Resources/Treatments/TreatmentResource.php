@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Treatments;
 use App\Filament\Resources\Treatments\Pages\CreateTreatment;
 use App\Filament\Resources\Treatments\Pages\EditTreatment;
 use App\Filament\Resources\Treatments\Pages\ListTreatments;
+use App\Filament\Resources\Treatments\RelationManagers;
 use App\Filament\Resources\Treatments\Schemas\TreatmentForm;
 use App\Filament\Resources\Treatments\Tables\TreatmentsTable;
 use App\Models\Treatment;
@@ -41,7 +42,7 @@ class TreatmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\PaymentsRelationManager::class,
         ];
     }
 

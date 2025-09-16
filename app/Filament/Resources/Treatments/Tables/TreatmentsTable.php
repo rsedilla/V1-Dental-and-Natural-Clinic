@@ -53,7 +53,43 @@ class TreatmentsTable
                     ->money('PHP')
                     ->sortable(),
                     
-                // 6. Follow up
+                // 6. Payment Status
+                TextColumn::make('payment_status')
+                    ->label('Payment Status')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        return $record->payment_status;
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'paid' => 'success',
+                        'partial' => 'warning',
+                        'unpaid' => 'danger',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+                    
+                // 7. Total Paid
+                TextColumn::make('total_paid')
+                    ->label('Total Paid')
+                    ->getStateUsing(function ($record) {
+                        return '₱' . number_format($record->total_paid, 2);
+                    })
+                    ->color('success')
+                    ->sortable(),
+                    
+                // 8. Balance
+                TextColumn::make('remaining_balance')
+                    ->label('Balance')
+                    ->getStateUsing(function ($record) {
+                        $balance = $record->remaining_balance;
+                        return $balance > 0 ? '₱' . number_format($balance, 2) : 'Paid';
+                    })
+                    ->color(function ($record) {
+                        return $record->remaining_balance > 0 ? 'danger' : 'success';
+                    })
+                    ->sortable(),
+                    
+                // 9. Follow up
                 TextColumn::make('follow_up_date')
                     ->label('Follow Up')
                     ->date('M d, Y')

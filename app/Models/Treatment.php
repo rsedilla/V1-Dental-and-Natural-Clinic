@@ -65,4 +65,35 @@ class Treatment extends Model
     {
         return $this->cost * $this->clinic_share;
     }
+
+    // Payment calculation methods
+    public function getTotalPaidAttribute(): float
+    {
+        return $this->payments()->sum('amount');
+    }
+
+    public function getRemainingBalanceAttribute(): float
+    {
+        return $this->cost - $this->total_paid;
+    }
+
+    public function getPaymentStatusAttribute(): string
+    {
+        $totalPaid = $this->total_paid;
+        $cost = $this->cost;
+
+        if ($totalPaid == 0) {
+            return 'unpaid';
+        } elseif ($totalPaid >= $cost) {
+            return 'paid';
+        } else {
+            return 'partial';
+        }
+    }
+
+    public function getPaymentProgressAttribute(): float
+    {
+        if ($this->cost == 0) return 0;
+        return ($this->total_paid / $this->cost) * 100;
+    }
 }

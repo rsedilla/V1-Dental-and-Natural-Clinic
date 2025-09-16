@@ -111,10 +111,37 @@ class PaymentForm
                     ->helperText('Search by typing patient name, treatment type, or treatment ID'),
                 TextInput::make('amount')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->prefix('₱')
+                    ->live()
+                    ->helperText(function ($get) {
+                        $treatmentId = $get('treatment_id');
+                        if (!$treatmentId) return 'Select a treatment to see balance information';
+                        
+                        $treatment = Treatment::find($treatmentId);
+                        if (!$treatment) return 'Treatment not found';
+                        
+                        $cost = $treatment->cost;
+                        $totalPaid = $treatment->total_paid;
+                        $balance = $treatment->remaining_balance;
+                        
+                        return "Treatment Cost: ₱" . number_format($cost, 2) . 
+                               " | Total Paid: ₱" . number_format($totalPaid, 2) . 
+                               " | Remaining Balance: ₱" . number_format($balance, 2);
+                    }),
                 DatePicker::make('payment_date')
                     ->required(),
-                TextInput::make('payment_method')
+                Select::make('payment_method')
+                    ->label('Payment Method')
+                    ->options([
+                        'cash' => 'Cash',
+                        'credit_card' => 'Credit Card',
+                        'debit_card' => 'Debit Card',
+                        'bank_transfer' => 'Bank Transfer',
+                        'installment' => 'Installment',
+                        'hmo card' => 'HMO Card',
+                    ])
+                    ->searchable()
                     ->required(),
                 Select::make('status_id')
                     ->relationship('status', 'name')

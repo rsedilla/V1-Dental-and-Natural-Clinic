@@ -38,14 +38,15 @@ class PaymentsTable
                 TextColumn::make('payment_method')
                     ->label('Payment Method')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'cash' => 'success',
-                        'credit_card' => 'info',
-                        'debit_card' => 'info',
-                        'bank_transfer' => 'warning',
-                        'installment' => 'gray',
-                        default => 'gray',
-                    }),
+					->color(fn (string $state): string => match ($state) {
+						'cash' => 'success',
+						'credit_card' => 'info',
+						'debit_card' => 'info',
+						'bank_transfer' => 'warning',
+						'installment' => 'gray',
+						'hmo card' => 'primary',
+						default => 'gray',
+					}),
                     
                 TextColumn::make('payment_date')
                     ->label('Date')
