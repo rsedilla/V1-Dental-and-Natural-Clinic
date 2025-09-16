@@ -29,15 +29,35 @@ class PaymentsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('appointment_id')
-                    ->numeric(),
                 TextInput::make('amount')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->prefix('₱')
+                    ->helperText(function ($get, $livewire) {
+                        $treatment = $livewire->ownerRecord;
+                        if ($treatment) {
+                            $totalPaid = $treatment->total_paid;
+                            $remainingBalance = $treatment->remaining_balance;
+                            return "Treatment Cost: ₱" . number_format($treatment->cost, 2) . 
+                                   " | Total Paid: ₱" . number_format($totalPaid, 2) . 
+                                   " | Remaining Balance: ₱" . number_format($remainingBalance, 2);
+                        }
+                        return null;
+                    }),
                 DatePicker::make('payment_date')
-                    ->required(),
-                TextInput::make('payment_method')
-                    ->required(),
+                    ->required()
+                    ->default(now()),
+                Select::make('payment_method')
+                    ->required()
+                    ->options([
+                        'cash' => 'Cash',
+                        'credit_card' => 'Credit Card',
+                        'debit_card' => 'Debit Card',
+                        'bank_transfer' => 'Bank Transfer',
+                        'installment' => 'Installment',
+                        'hmo_card' => 'HMO Card',
+                    ])
+                    ->default('cash'),
                 Select::make('status_id')
                     ->relationship('status', 'name')
                     ->required(),
@@ -50,16 +70,23 @@ class PaymentsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextEntry::make('appointment_id')
-                    ->numeric()
-                    ->placeholder('-'),
                 TextEntry::make('amount')
-                    ->numeric(),
+                    ->money('PHP'),
                 TextEntry::make('payment_date')
                     ->date(),
-                TextEntry::make('payment_method'),
+                TextEntry::make('payment_method')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'cash' => 'success',
+                        'credit_card', 'debit_card' => 'info',
+                        'bank_transfer' => 'warning',
+                        'installment' => 'gray',
+                        'hmo_card' => 'danger',
+                        default => 'gray',
+                    }),
                 TextEntry::make('status.name')
-                    ->label('Status'),
+                    ->label('Status')
+                    ->badge(),
                 TextEntry::make('notes')
                     ->placeholder('-')
                     ->columnSpanFull(),
@@ -77,18 +104,24 @@ class PaymentsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('payment_id')
             ->columns([
-                TextColumn::make('appointment_id')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('amount')
-                    ->numeric()
+                    ->money('PHP')
                     ->sortable(),
                 TextColumn::make('payment_date')
                     ->date()
                     ->sortable(),
                 TextColumn::make('payment_method')
-                    ->searchable(),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'cash' => 'success',
+                        'credit_card', 'debit_card' => 'info',
+                        'bank_transfer' => 'warning',
+                        'installment' => 'gray',
+                        'hmo_card' => 'danger',
+                        default => 'gray',
+                    }),
                 TextColumn::make('status.name')
+                    ->badge()
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -103,18 +136,16 @@ class PaymentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
-                AssociateAction::make(),
+                CreateAction::make()
+                    ->label('Add Payment'),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DissociateAction::make(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

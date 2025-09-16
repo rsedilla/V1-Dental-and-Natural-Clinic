@@ -6,7 +6,7 @@ use App\Filament\Resources\Payments\Pages\CreatePayment;
 use App\Filament\Resources\Payments\Pages\EditPayment;
 use App\Filament\Resources\Payments\Pages\ListPayments;
 use App\Filament\Resources\Payments\Schemas\PaymentForm;
-use App\Filament\Resources\Payments\Tables\PaymentsTable;
+use App\Filament\Resources\Payments\Tables\PaymentHistoryTable;
 use App\Models\Payment;
 use App\Traits\HasRoleBasedNavigation;
 use BackedEnum;
@@ -22,11 +22,11 @@ class PaymentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCurrencyDollar;
     
-    protected static ?string $navigationLabel = 'Payments';
+    protected static ?string $navigationLabel = 'Payment History';
     
     protected static ?string $modelLabel = 'Payment';
     
-    protected static ?string $pluralModelLabel = 'Payments';
+    protected static ?string $pluralModelLabel = 'Payment History';
     
     protected static ?int $navigationSort = 6;
 
@@ -43,7 +43,7 @@ class PaymentResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return PaymentsTable::configure($table);
+        return PaymentHistoryTable::configure($table);
     }
 
     public static function getRelations(): array
