@@ -18,26 +18,39 @@ class ClinicStatsOverview extends BaseWidget
             $totalPatients = Patient::count();
             $todayAppointments = Appointment::whereDate('date', today())->count();
             $monthlyRevenue = Payment::whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
                 ->whereNotNull('amount')
                 ->sum('amount') ?? 0;
-            $upcomingAppointments = Appointment::where('date', '>=', now()->toDateString())->count();
+            
+            // Fix upcoming appointments - should include today and future dates
+            $upcomingAppointments = Appointment::where('date', '>=', today())->count();
+            
             $totalAppointmentsThisMonth = Appointment::whereMonth('date', now()->month)
                 ->whereYear('date', now()->year)
                 ->count();
             
-            // Get patients for today with their names
+            // Get patients for today with their names - use the full_name accessor
             $todayPatients = Appointment::whereDate('date', today())
                 ->with('patient')
                 ->get()
-                ->pluck('patient.name')
+                ->map(function($appointment) {
+                    return $appointment->patient ? $appointment->patient->full_name : null;
+                })
                 ->filter()
                 ->unique()
                 ->values();
             $todayPatientsCount = $todayPatients->count();
             $todayPatientsNames = $todayPatientsCount > 0 ? $todayPatients->implode(', ') : 'No patients today';
             
-            $treatmentsToday = Treatment::whereDate('created_at', today())->count();
-            $pendingPayments = Payment::where('status', 'pending')->count();
+            // Fix treatments today - should use treatment_date instead of created_at
+            $treatmentsToday = Treatment::whereDate('treatment_date', today())->count();
+            
+            // Fix pending payments - check if status column exists or use a different approach
+            $pendingPayments = Payment::where(function($query) {
+                $query->where('status', 'pending')
+                      ->orWhere('status', 'unpaid')
+                      ->orWhereNull('status');
+            })->count();
             
             return [
                 
@@ -47,7 +60,7 @@ class ClinicStatsOverview extends BaseWidget
                     ->color('info'),
 
                 Stat::make('Upcoming Appointments', $upcomingAppointments)
-                    ->description('Scheduled appointments')
+                    ->description('Including today and future')
                     ->descriptionIcon('heroicon-m-calendar-days')
                     ->color('info'),
 
@@ -91,7 +104,7 @@ class ClinicStatsOverview extends BaseWidget
                     ->color('info'),
 
                 Stat::make('Upcoming Appointments', '0')
-                    ->description('Scheduled appointments')
+                    ->description('Including today and future')
                     ->descriptionIcon('heroicon-m-calendar-days')
                     ->color('info'),
 
