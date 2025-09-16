@@ -26,27 +26,27 @@ class PaymentForm
                     ->options(function (string $search = ''): array {
                         if (empty($search)) {
                             // Show recent treatments if no search
-                            return Treatment::with(['treatmentType', 'patient'])
+                            return Treatment::with(['treatmentType', 'appointment.patient'])
                                 ->latest()
                                 ->limit(20)
                                 ->get()
                                 ->mapWithKeys(function ($treatment) {
-                                    $patient = $treatment->patient ?? null;
+                                    $patient = $treatment->appointment->patient ?? null;
                                     $patientName = $patient ? "{$patient->first_name} {$patient->last_name}" : 'Unknown Patient';
                                     $treatmentType = $treatment->treatmentType->name ?? 'Unknown Treatment';
                                     $date = $treatment->treatment_date ? $treatment->treatment_date->format('M d, Y') : 'No date';
                                     
                                     return [
-                                        $treatment->treatment_id => "#{$treatment->treatment_id} - {$treatmentType} for {$patientName} ({$date})"
+                                        $treatment->id => "#{$treatment->id} - {$treatmentType} for {$patientName} ({$date})"
                                     ];
                                 })
                                 ->toArray();
                         }
 
                         // Search by patient name, treatment type, or treatment ID
-                        return Treatment::with(['treatmentType', 'patient'])
+                        return Treatment::with(['treatmentType', 'appointment.patient'])
                             ->where(function (Builder $query) use ($search) {
-                                $query->whereHas('patient', function (Builder $q) use ($search) {
+                                $query->whereHas('appointment.patient', function (Builder $q) use ($search) {
                                     $q->where('first_name', 'like', "%{$search}%")
                                       ->orWhere('last_name', 'like', "%{$search}%")
                                       ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", ["%{$search}%"]);
@@ -60,7 +60,7 @@ class PaymentForm
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($treatment) {
-                                $patient = $treatment->patient ?? null;
+                                $patient = $treatment->appointment->patient ?? null;
                                 $patientName = $patient ? "{$patient->first_name} {$patient->last_name}" : 'Unknown Patient';
                                 $treatmentType = $treatment->treatmentType->name ?? 'Unknown Treatment';
                                 $date = $treatment->treatment_date ? $treatment->treatment_date->format('M d, Y') : 'No date';
@@ -73,9 +73,9 @@ class PaymentForm
                     })
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search): array {
-                        return Treatment::with(['treatmentType', 'patient'])
+                        return Treatment::with(['treatmentType', 'appointment.patient'])
                             ->where(function (Builder $query) use ($search) {
-                                $query->whereHas('patient', function (Builder $q) use ($search) {
+                                $query->whereHas('appointment.patient', function (Builder $q) use ($search) {
                                     $q->where('first_name', 'like', "%{$search}%")
                                       ->orWhere('last_name', 'like', "%{$search}%")
                                       ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", ["%{$search}%"]);
@@ -89,7 +89,7 @@ class PaymentForm
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($treatment) {
-                                $patient = $treatment->patient ?? null;
+                                $patient = $treatment->appointment->patient ?? null;
                                 $patientName = $patient ? "{$patient->first_name} {$patient->last_name}" : 'Unknown Patient';
                                 $treatmentType = $treatment->treatmentType->name ?? 'Unknown Treatment';
                                 $date = $treatment->treatment_date ? $treatment->treatment_date->format('M d, Y') : 'No date';
@@ -101,23 +101,24 @@ class PaymentForm
                             ->toArray();
                     })
                     ->getOptionLabelUsing(function ($value): ?string {
-                        $treatment = Treatment::with(['treatmentType', 'patient'])->find($value);
+                        $treatment = Treatment::with(['treatmentType', 'appointment.patient'])->find($value);
                         if (!$treatment) return null;
                         
-                        $patient = $treatment->patient ?? null;
+                        $patient = $treatment->appointment->patient ?? null;
                         $patientName = $patient ? "{$patient->first_name} {$patient->last_name}" : 'Unknown Patient';
                         $treatmentType = $treatment->treatmentType->name ?? 'Unknown Treatment';
                         $date = $treatment->treatment_date ? $treatment->treatment_date->format('M d, Y') : 'No date';
                         
-                        return "#{$treatment->treatment_id} - {$treatmentType} for {$patientName} ({$date})";
+                        return "#{$treatment->id} - {$treatmentType} for {$patientName} ({$date})";
                     })
+                    ->live()
                     ->required()
                     ->helperText('Search by typing patient name, treatment type, or treatment ID'),
                 TextInput::make('amount')
                     ->required()
                     ->numeric()
                     ->prefix('₱')
-                    ->live()
+                    ->live(debounce: 500)
                     ->default(function () {
                         // Pre-fill remaining balance if specified in URL
                         return request()->get('amount');

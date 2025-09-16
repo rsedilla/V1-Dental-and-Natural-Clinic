@@ -17,17 +17,18 @@ class PaymentHistoryTable
         return $table
             ->query(
                 Payment::query()
-                    ->with(['treatment.patient', 'treatment.treatmentType', 'status'])
-                    ->join('treatments', 'payments.treatment_id', '=', 'treatments.treatment_id')
-                    ->join('patients', 'treatments.patient_id', '=', 'patients.patient_id')
+                    ->with(['treatment.appointment.patient', 'treatment.treatmentType', 'status'])
+                    ->join('treatments', 'payments.treatment_id', '=', 'treatments.id')
+                    ->join('appointments', 'treatments.appointment_id', '=', 'appointments.id')
+                    ->join('patients', 'appointments.patient_id', '=', 'patients.id')
                     ->select('payments.*')
             )
             ->columns([
-                TextColumn::make('treatment.patient.first_name')
+                TextColumn::make('treatment.appointment.patient.first_name')
                     ->label('Patient Name')
                     ->formatStateUsing(fn ($record) => 
-                        $record->treatment->patient->first_name . ' ' . 
-                        $record->treatment->patient->last_name
+                        $record->treatment->appointment->patient->first_name . ' ' . 
+                        $record->treatment->appointment->patient->last_name
                     )
                     ->searchable(['patients.first_name', 'patients.last_name'])
                     ->sortable(['patients.first_name']),
